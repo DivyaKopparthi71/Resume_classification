@@ -11,7 +11,7 @@ with open(model_file, 'rb') as file:
 
 # Load the dataset to obtain feature names for input
 # Assuming you have a DataFrame to extract feature names (replace with your actual dataset)
-data = pd.read_csv("Resumes-Dataset-with-Labels.csv")  # Load your dataset
+data = pd.read_csv("Resumes-Dataset-with-Labels.xls")  # Load your dataset
 feature_names = data.columns[2:].tolist()  # Assuming the first two columns are Label and Cleaned_Tokens
 
 # Streamlit app
