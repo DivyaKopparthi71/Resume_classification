@@ -1,31 +1,39 @@
 import streamlit as st
 import pickle
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
 
-# Load the model
+# Load the model (ensure this file exists)
 with open('resume_classification.pkl', 'rb') as f:
     model_rfc = pickle.load(f)
 
-# Load the label mapping
-with open('label_mapping.pkl', 'rb') as f:
-    label_mapping = pickle.load(f)
+# Load the sample DataFrame (replace with actual data loading)
+data = {
+    'Label': ['Developer', 'Developer', 'Admin', 'Developer', 'Admin'],
+    'Cleaned_Tokens': [
+        'anubhavkumarsinghtoworkinagloballycompetitiveenvironment',
+        'profilesummary7yearsofexperienceinimplementing',
+        'peoplesoftdatabaseadministrator',
+        'muraliexperiencesummaryihave6yearsofexperience',
+        'workdayfunctionalconsultantexpertisewith6years'
+    ]
+}
+df = pd.DataFrame(data)
 
 # Streamlit app
-st.title('Resume Classification')
+st.title('Resume Classification and Search')
 
-# Input field for cleaned tokens
-cleaned_tokens = st.text_input("Enter your cleaned tokens:")
+# Dropdown for label selection
+selected_label = st.selectbox("Select a label to view resumes:", df['Label'].unique())
 
-if st.button("Classify"):
-    # Assuming you have the same TF-IDF vectorizer
-    input_tfidf = tfidf_vectorizer.transform([cleaned_tokens])
-    
-    # Make prediction
-    prediction = model_rfc.predict(input_tfidf)
+if st.button("Show Resumes"):
+    # Filter resumes based on the selected label
+    matched_resumes = df[df['Label'] == selected_label]
 
-    # Get the human-readable label from the mapping
-    predicted_label = label_mapping[prediction[0]]
-
-    # Display the predicted label
-    st.write(f"The predicted label is: **{predicted_label}**")
+    # Display matched resumes
+    if not matched_resumes.empty:
+        st.write("### Resumes with Label:", selected_label)
+        for index, row in matched_resumes.iterrows():
+            st.write(f"**Resume Content**: {row['Cleaned_Tokens']}")
+            st.write("---")
+    else:
+        st.write("No resumes found for this label.")
