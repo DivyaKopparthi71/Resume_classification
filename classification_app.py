@@ -2,26 +2,26 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-# Load pre-trained model
+# Load pre-trained model (if needed)
 with open('resume_classification.pkl', 'rb') as model_file:
     model = pickle.load(model_file)
 
-# Define function to classify resumes
-def classify_resume(selected_resumes, experience, skills, resumes_df):
-    # Ensure columns exist in the dataset
-    if 'experience' not in resumes_df.columns or 'skills' not in resumes_df.columns:
-        st.error("The dataset does not contain 'experience' or 'skills' columns.")
+# Define function to classify resumes based on 'Label' and 'Cleaned_Tokens'
+def classify_resume(selected_resumes, role, skills, resumes_df):
+    # Ensure 'Cleaned_Tokens' and 'Label' exist in the dataset
+    if 'Cleaned_Tokens' not in resumes_df.columns or 'Label' not in resumes_df.columns:
+        st.error("The dataset does not contain 'Cleaned_Tokens' or 'Label' columns.")
         return pd.DataFrame()  # Return an empty DataFrame
 
-    # Filter selected resumes based on experience and skills
+    # Filter selected resumes based on the role and skills
     filtered_resumes = selected_resumes[
-        (selected_resumes['experience'] >= experience) & 
-        (selected_resumes['skills'].apply(lambda x: all(skill.strip().lower() in x.lower() for skill in skills if skill)))
+        (selected_resumes['Label'] == role) & 
+        (selected_resumes['Cleaned_Tokens'].apply(lambda x: all(skill.strip().lower() in x.lower() for skill in skills if skill)))
     ]
     
     return filtered_resumes
 
-# Load resumes dataset (ensure the file exists and path is correct)
+# Load resumes dataset
 try:
     resumes_df = pd.read_csv('Resumes-Dataset-with-Labels.xls')  # Replace with the actual file path
     st.write("Resumes dataset loaded successfully.")
@@ -35,8 +35,8 @@ if resumes_df is not None:
 # Streamlit app layout
 st.title('Resume Classification App')
 
-# Check if 'File Name' column exists
-identifier_column = 'File Name'  # Update 'name' to 'File Name'
+# Use 'File Name' as the identifier for resumes
+identifier_column = 'File Name'
 
 if identifier_column in resumes_df.columns:
     # Step 1: Display all resumes and allow user to select multiple resumes
@@ -52,12 +52,15 @@ if selected_indices:
     st.write("Selected Resumes:")
     st.dataframe(selected_resumes)
 
-    experience = st.number_input('Minimum Experience (Years)', min_value=0, max_value=50, value=1)
+    # Input for role selection (Admin, Developer, etc.)
+    role = st.selectbox('Select Role:', resumes_df['Label'].unique())
+
+    # Input for required skills
     skills_input = st.text_input('Required Skills (Comma Separated)').split(',')
 
-    # Step 3: Button to trigger the prediction
+    # Step 3: Button to trigger the filtering
     if st.button('Filter Selected Resumes'):
-        result = classify_resume(selected_resumes, experience, skills_input, resumes_df)
+        result = classify_resume(selected_resumes, role, skills_input, resumes_df)
 
         # Step 4: Display the result
         if not result.empty:
