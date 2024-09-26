@@ -1,59 +1,52 @@
+import pickle
 import streamlit as st
 import pandas as pd
-import pickle
 
-# Load the saved model
-file_name = "resume_classification.pkl"
-with open(file_name, 'rb') as file:
-    model_rfc = pickle.load(file)
+# Load the trained model
+with open("resume_classification.pkl", 'rb') as file:
+    model = pickle.load(file)
 
-# Load your dataset
-data = pd.read_csv("Resumes-Dataset-with-Labels.xls")  # Replace with your actual dataset file
+# Load your resumes dataset
+# Assume the dataset has columns: 'Label', 'Resume'
+resumes_df = pd.read_csv("resumes_dataset.csv")  # Update with your actual file path
 
-# Check column names to ensure correct usage
-st.write("Columns in dataset:", data.columns)
+# Define your labels based on the model training
+labels = ["Developer", "Admin", "Manager", "Others"]
 
-# Map numerical labels to more descriptive names
-label_mapping = {
-    0: 'developer',
-    1: 'admin',
-    2: 'manager',
-    3: 'others'
-}
-
-# Check unique values in the Label column
-st.write("Unique labels in the dataset:", data['Label'].unique())
-
-# Create a new column in the dataframe with the mapped labels
-data['Label_Mapped'] = data['Label'].map(label_mapping)
-
-# Streamlit app
+# Title of the web app
 st.title("Resume Classification")
 
-# Input for the label (dropdown showing descriptive labels instead of 0, 1, etc.)
-selected_label = st.selectbox('Select Role:', data['Label_Mapped'].unique())
+# Input fields for label, experience, year of passing, education, and technical skills
+label = st.selectbox("Select Label", labels)
+experience = st.selectbox("Select Experience Range", ["0-2 years", "2-5 years", "5-10 years", "10+ years"])
+year_of_passing = st.selectbox("Select Year of Passing", [2010, 2012, 2015, 2018, 2020, 2022])
+education = st.selectbox("Select Education Level", ["Bachelor's", "Master's", "PhD"])
 
-# Map the selected label back to its numeric form
-numeric_label = {v: k for k, v in label_mapping.items()}[selected_label]
+# Input for technical skills
+skills = st.text_input("Enter Technical Skills (comma-separated)", "Python, Machine Learning, Data Analysis")
 
-# Filter the dataset based on the selected label
-filtered_data = data[data['Label'] == numeric_label]
-
-# Check if filtered data is empty
-if filtered_data.empty:
-    st.write(f"No resumes found for {selected_label}")
-else:
-    # Display the count of resumes
-    st.write(f"Number of resumes for {selected_label}: {len(filtered_data)}")
-
-    # Display the file names of resumes with the selected label
-    st.write(f"Resumes with the selected role ({selected_label}):")
-    st.dataframe(filtered_data[['File Name']])
-
-    # Optional: If you want to run predictions
-    # Assuming the necessary input features are in the dataset
-    X_test = filtered_data[['count_developer', 'count_admin', 'count_manager', 'count_other']]  # Modify columns as per your dataset
-    predictions = model_rfc.predict(X_test)
-
-    st.write("Predictions for selected role:")
-    st.write(predictions)
+# Button to make predictions
+if st.button('Predict'):
+    # Process the inputs to match model expectations
+    skills_list = [skill.strip() for skill in skills.split(',')]
+    
+    # Prepare the input data for the model
+    input_data = [label, experience, year_of_passing, education] + skills_list
+    
+    # Make prediction
+    prediction = model.predict([input_data])
+    
+    # Show prediction result
+    predicted_class = prediction[0]
+    st.write(f"Predicted Class: {predicted_class}")
+    
+    # Filter resumes that match the predicted class from the DataFrame
+    matching_resumes = resumes_df[resumes_df['Label'] == predicted_class]
+    
+    # Display matching resumes
+    if not matching_resumes.empty:
+        st.write(f"Matching Resumes for {predicted_class}:")
+        for index, row in matching_resumes.iterrows():
+            st.write(f"Resume {index + 1}: {row['Resume']}")
+    else:
+        st.write("No resumes found for the predicted class.")
