@@ -35,8 +35,8 @@ if resumes_df is not None:
 # Streamlit app layout
 st.title('Resume Classification App')
 
-# Check if 'name' column exists; if not, modify accordingly
-identifier_column = 'name'  # Replace 'name' with the actual column that identifies resumes
+# Check if 'File Name' column exists
+identifier_column = 'File Name'  # Update 'name' to 'File Name'
 
 if identifier_column in resumes_df.columns:
     # Step 1: Display all resumes and allow user to select multiple resumes
