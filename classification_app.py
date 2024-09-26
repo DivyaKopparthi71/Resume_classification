@@ -35,12 +35,20 @@ if resumes_df is not None:
 # Streamlit app layout
 st.title('Resume Classification App')
 
-# Step 1: Display all resumes and allow user to select multiple resumes
-selected_indices = st.multiselect('Select Resumes:', resumes_df.index, format_func=lambda x: resumes_df.iloc[x]['name'])
-selected_resumes = resumes_df.iloc[selected_indices] if selected_indices else pd.DataFrame()
+# Check if 'name' column exists; if not, modify accordingly
+identifier_column = 'name'  # Replace 'name' with the actual column that identifies resumes
 
-# Step 2: Input form for user to enter criteria after selecting resumes
-if not selected_resumes.empty:
+if identifier_column in resumes_df.columns:
+    # Step 1: Display all resumes and allow user to select multiple resumes
+    selected_indices = st.multiselect('Select Resumes:', resumes_df.index, format_func=lambda x: resumes_df.iloc[x][identifier_column])
+else:
+    st.error(f"The dataset does not contain a '{identifier_column}' column for identifying resumes.")
+
+# Proceed if resumes are selected
+if selected_indices:
+    selected_resumes = resumes_df.iloc[selected_indices]
+
+    # Step 2: Input form for user to enter criteria after selecting resumes
     st.write("Selected Resumes:")
     st.dataframe(selected_resumes)
 
@@ -63,4 +71,3 @@ if not selected_resumes.empty:
         st.download_button(label='Download Filtered Resumes', data=csv_data, file_name='filtered_resumes.csv', mime='text/csv')
 else:
     st.write("Please select resumes to proceed.")
-
