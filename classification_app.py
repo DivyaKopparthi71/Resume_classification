@@ -8,15 +8,6 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Check if NLTK resources are downloaded
-nltk_resources = ['punkt', 'stopwords', 'wordnet']
-for resource in nltk_resources:
-    try:
-        nltk.data.find(f'tokenizers/{resource}')  # Check for punkt
-    except LookupError:
-        st.warning(f"NLTK resource '{resource}' not found, downloading...")
-        nltk.download(resource)
-
 # Load the model
 with open('resume_classification.pkl', 'rb') as file:
     model_rfc = pickle.load(file)
