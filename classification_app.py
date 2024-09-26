@@ -1,98 +1,50 @@
 import streamlit as st
 import pandas as pd
-import pickle
-import re
-import nltk
-from sklearn.feature_extraction.text import TfidfVectorizer
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
+import pickle  # Assuming you're using a pre-trained model saved as a pickle
 
-# Load the model
-with open('resume_classification.pkl', 'rb') as file:
-    model_rfc = pickle.load(file)
+# Load pre-trained model
+# Ensure you have saved your trained model as 'resume_model.pkl'
+with open('resume_model.pkl', 'rb') as model_file:
+    model = pickle.load(model_file)
 
-# Load your dataset (ensure the path is correct)
-data = pd.read_csv('Resumes-Dataset-with-Labels.xls')
+# Define the function to predict resumes based on experience and skills
+def classify_resume(experience, skills, resumes_df):
+    # Use your pre-trained model to make predictions
+    # Here, you need to adjust based on how your model works
+    # Assuming the model takes 'experience' and 'skills' as input features
+    # resumes_df contains the resumes data
 
-# Define text cleaning function
-def text_clean_nltk(text):
-    text = text.lower()
-    text = re.sub(r'\s+', ' ', text).strip()
-    text = re.sub(r'[^\w\s]', '', text)
-    tokens = word_tokenize(text)
-    stop_words = set(stopwords.words('english'))
-    lemmatizer = WordNetLemmatizer()
-    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
-    cleaned_text = ' '.join(tokens)
-    return cleaned_text
-
-# Clean the resume text
-data['Cleaned_Tokens'] = data['Resume Text'].apply(text_clean_nltk)
-
-# List of keywords to count
-keywords = ['developer', 'admin', 'manager', 'other']
-
-# Create keyword count features
-for keyword in keywords:
-    data[f'count_{keyword}'] = data['Cleaned_Tokens'].str.lower().str.count(keyword)
-
-# TF-IDF Vectorization
-tfidf_vectorizer = TfidfVectorizer(stop_words='english')
-X_tfidf = tfidf_vectorizer.fit_transform(data['Cleaned_Tokens'])
-
-# Convert TF-IDF matrix to DataFrame and combine with keyword counts
-tfidf_df = pd.DataFrame(X_tfidf.toarray(), columns=tfidf_vectorizer.get_feature_names_out())
-X = pd.concat([data.reset_index(drop=True), tfidf_df], axis=1)
-
-# Prepare your labels
-Y = data['Label']
-
-# Streamlit application
-st.title("Resume Classification")
-
-# User inputs
-st.header("Input Skills and Experiences")
-skills = st.text_input("Enter Skills (comma-separated)")
-experience = st.text_area("Enter Experience Details")
-
-# Multi-select for resumes
-st.header("Select Resumes for Comparison")
-resume_options = data['File Name'].tolist()  # Extract the resume file names for selection
-selected_resumes = st.multiselect("Select Resumes", resume_options)
-
-if st.button("Predict"):
-    # Preprocess the input
-    user_input = f"{skills} {experience}"
+    filtered_resumes = resumes_df[
+        (resumes_df['experience'] >= experience) & 
+        (resumes_df['skills'].apply(lambda x: all(skill in x for skill in skills)))
+    ]
     
-    # Clean the user input
-    cleaned_input = text_clean_nltk(user_input)
+    # Here 'filtered_resumes' is a DataFrame of selected resumes based on criteria
+    return filtered_resumes
 
-    # Vectorize the user input
-    user_input_vectorized = tfidf_vectorizer.transform([cleaned_input])
+# Load your resumes dataset (you might need to modify this part)
+resumes_df = pd.read_csv('resumes.csv')  # Replace with your actual resumes data
 
-    # Prepare features for prediction
-    user_feature_vector = pd.DataFrame(user_input_vectorized.toarray(), columns=tfidf_vectorizer.get_feature_names_out())
+# Streamlit app layout
+st.title('Resume Classification App')
+
+# Input form for user to enter criteria
+experience = st.number_input('Minimum Experience (Years)', min_value=0, max_value=50, value=1)
+skills_input = st.text_input('Required Skills (Comma Separated)').split(',')
+
+# Button to trigger the prediction
+if st.button('Classify Resumes'):
+    # Perform classification
+    result = classify_resume(experience, skills_input, resumes_df)
     
-    # Ensure the keyword counts are also included
-    for keyword in keywords:
-        user_feature_vector[f'count_{keyword}'] = cleaned_input.lower().count(keyword)
-
-    # Make prediction
-    prediction = model_rfc.predict(user_feature_vector)  # Use the cleaned input for prediction
-
-    # Display the prediction result
-    st.write("Predicted Resume Category: ", prediction[0])
-
-    # Show relevant resumes based on the prediction
-    relevant_resumes = data[data['Label'] == prediction[0]]
-    st.write("Relevant Resumes Based on Prediction:")
-    st.dataframe(relevant_resumes[['File Name', 'Label']])
-    
-    # Show the selected resumes by the user
-    st.write("Selected Resumes:")
-    if selected_resumes:
-        selected_data = data[data['File Name'].isin(selected_resumes)]
-        st.dataframe(selected_data[['File Name', 'Label']])
+    # Display the result
+    if not result.empty:
+        st.write('Selected Resumes:')
+        st.dataframe(result)
     else:
-        st.write("No resumes selected.")
+        st.write('No resumes match the criteria.')
+
+# Optionally: Allow users to download the selected resumes
+if not result.empty:
+    result.to_csv('selected_resumes.csv', index=False)
+    st.download_button(label='Download Selected Resumes', data='selected_resumes.csv', file_name='selected_resumes.csv')
