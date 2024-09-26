@@ -1,39 +1,50 @@
 import streamlit as st
-import pickle
 import pandas as pd
+import pickle
 
-# Load the model (ensure this file exists)
-with open('resume_classification.pkl', 'rb') as f:
-    model_rfc = pickle.load(f)
+# Load the saved model
+file_name = "resume_classification.pkl"
+with open(file_name, 'rb') as file:
+    model_rfc = pickle.load(file)
 
-# Load the sample DataFrame (replace with actual data loading)
-data = {
-    'Label': ['Developer', 'Developer', 'Admin', 'Developer', 'Admin'],
-    'Cleaned_Tokens': [
-        'anubhavkumarsinghtoworkinagloballycompetitiveenvironment',
-        'profilesummary7yearsofexperienceinimplementing',
-        'peoplesoftdatabaseadministrator',
-        'muraliexperiencesummaryihave6yearsofexperience',
-        'workdayfunctionalconsultantexpertisewith6years'
-    ]
+# Load your dataset
+data = pd.read_csv("your_dataset.csv")  # Replace with your actual dataset file
+
+# Map numerical labels to more descriptive names
+label_mapping = {
+    0: 'developer',
+    1: 'admin',
+    2: 'manager',
+    3: 'others'
 }
-df = pd.DataFrame(data)
+
+# Create a new column in the dataframe with the mapped labels
+data['Label_Mapped'] = data['Label'].map(label_mapping)
 
 # Streamlit app
-st.title('Resume Classification and Search')
+st.title("Resume Classification")
 
-# Dropdown for label selection
-selected_label = st.selectbox("Select a label to view resumes:", df['Label'].unique())
+# Input for the label (dropdown showing descriptive labels instead of 0, 1, etc.)
+selected_label = st.selectbox('Select Role:', data['Label_Mapped'].unique())
 
-if st.button("Show Resumes"):
-    # Filter resumes based on the selected label
-    matched_resumes = df[df['Label'] == selected_label]
+# Map the selected label back to its numeric form
+numeric_label = {v: k for k, v in label_mapping.items()}[selected_label]
 
-    # Display matched resumes
-    if not matched_resumes.empty:
-        st.write("### Resumes with Label:", selected_label)
-        for index, row in matched_resumes.iterrows():
-            st.write(f"**Resume Content**: {row['Cleaned_Tokens']}")
-            st.write("---")
-    else:
-        st.write("No resumes found for this label.")
+# Filter the dataset based on the selected label
+filtered_data = data[data['Label'] == numeric_label]
+
+# Display the count of resumes
+st.write(f"Number of resumes for {selected_label}: {len(filtered_data)}")
+
+# Display the file names of resumes with the selected label
+st.write(f"Resumes with the selected role ({selected_label}):")
+st.dataframe(filtered_data[['File Name']])
+
+# Optional: If you want to run predictions
+# Assuming the necessary input features are in the dataset
+X_test = filtered_data[['count_developer', 'count_admin', 'count_manager', 'count_other']]  # Modify columns as per your dataset
+predictions = model_rfc.predict(X_test)
+
+st.write("Predictions for selected role:")
+st.write(predictions)
+
