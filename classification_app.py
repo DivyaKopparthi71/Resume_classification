@@ -8,16 +8,14 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Specify NLTK data path if necessary
-nltk.data.path.append('/path/to/your/project/nltk_data')  # Adjust this path accordingly
-
-# Download necessary NLTK resources (suppress output)
-try:
-    nltk.download('punkt', quiet=True)
-    nltk.download('stopwords', quiet=True)
-    nltk.download('wordnet', quiet=True)
-except LookupError:
-    st.warning("NLTK resources not found, please check your setup.")
+# Check if NLTK resources are downloaded
+nltk_resources = ['punkt', 'stopwords', 'wordnet']
+for resource in nltk_resources:
+    try:
+        nltk.data.find(f'tokenizers/{resource}')  # Check for punkt
+    except LookupError:
+        st.warning(f"NLTK resource '{resource}' not found, downloading...")
+        nltk.download(resource)
 
 # Load the model
 with open('resume_classification.pkl', 'rb') as file:
