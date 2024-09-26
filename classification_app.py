@@ -4,7 +4,7 @@ import pickle  # Assuming you're using a pre-trained model saved as a pickle
 
 # Load pre-trained model
 # Ensure you have saved your trained model as 'resume_model.pkl'
-with open('resume_model.pkl', 'rb') as model_file:
+with open('resume_classification.pkl', 'rb') as model_file:
     model = pickle.load(model_file)
 
 # Define the function to predict resumes based on experience and skills
