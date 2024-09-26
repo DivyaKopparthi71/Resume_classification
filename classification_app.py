@@ -23,7 +23,7 @@ def classify_resume(experience, skills, resumes_df):
     return filtered_resumes
 
 # Load your resumes dataset (you might need to modify this part)
-resumes_df = pd.read_csv('resumes.csv')  # Replace with your actual resumes data
+resumes_df = pd.read_csv('Resumes-Dataset-with-Labels.xls')  # Replace with your actual resumes data
 
 # Streamlit app layout
 st.title('Resume Classification App')
