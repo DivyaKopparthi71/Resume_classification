@@ -8,7 +8,7 @@ with open("resume_classification.pkl", 'rb') as file:
 
 # Load your resumes dataset
 # Assume the dataset has columns: 'Label', 'Resume'
-resumes_df = pd.read_csv("resumes_dataset.csv")  # Update with your actual file path
+resumes_df = pd.read_csv("Resumes-Dataset-with-Labels.xls")  # Update with your actual file path
 
 # Define your labels based on the model training
 labels = ["Developer", "Admin", "Manager", "Others"]
