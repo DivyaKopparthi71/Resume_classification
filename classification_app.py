@@ -7,7 +7,7 @@ with open('resume_classification.pkl', 'rb') as file:
     model_rfc = pickle.load(file)
 
 # Load your dataset (replace 'your_dataset.csv' with your actual file path)
-data = pd.read_csv('your_dataset.csv')  # Update this line if your data is in a different format
+data = pd.read_csv('Resumes-Dataset-with-Labels.xls')  # Update this line if your data is in a different format
 
 # Streamlit application
 st.title("Resume Classification")
@@ -48,3 +48,6 @@ if st.button("Predict"):
         st.dataframe(selected_data[['File Name', 'Label']])
     else:
         st.write("No resumes selected.")
+
+
+#Resumes-Dataset-with-Labels.xls
