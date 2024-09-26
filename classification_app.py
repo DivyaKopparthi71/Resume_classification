@@ -7,8 +7,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 with open('resume_classification.pkl', 'rb') as file:
     model_rfc = pickle.load(file)
 
-# Load your dataset (replace 'Resumes-Dataset-with-Labels.xls' with your actual file path)
-data = pd.read_excel('Resumes-Dataset-with-Labels.xls')  # Use read_excel for .xls files
+# Load your dataset with specified engine for .xls files
+data = pd.read_excel('Resumes-Dataset-with-Labels.xls', engine='xlrd')  # Specify the engine here
 
 # Initialize your vectorizer (use the same parameters as in training)
 vectorizer = CountVectorizer()  # Replace with your actual vectorizer if applicable
