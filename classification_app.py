@@ -45,16 +45,20 @@ def main():
         # Preprocess the resume
         processed_resume = preprocess_resume(resume_text)
 
-        # Check shape and type of processed resume for debugging
+        # Check shape and type of processed resume
         st.write("Processed Resume Shape:", processed_resume.shape)
-        st.write("Processed Resume Type:", type(processed_resume))
+        
+        if processed_resume.shape[1] == model_rfc.n_features_in_:
+            # Make prediction using the loaded model
+            prediction = model_rfc.predict(processed_resume)
+            prediction_proba = model_rfc.predict_proba(processed_resume)
 
-        # Make predictions
-        prediction = model_rfc.predict(processed_resume)
+            st.write("Predicted Class:", prediction[0])
+            st.write("Prediction Probabilities:", prediction_proba)
 
-        # Display the prediction
-        st.write("Classification Result:")
-        st.write(prediction[0])
+        else:
+            st.error(f"Mismatch in feature dimensions. Expected {model_rfc.n_features_in_} features but got {processed_resume.shape[1]}.")
 
+# Run the app
 if __name__ == "__main__":
     main()
