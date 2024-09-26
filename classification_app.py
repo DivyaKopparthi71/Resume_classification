@@ -8,7 +8,7 @@ with open(file_name, 'rb') as file:
     model_rfc = pickle.load(file)
 
 # Load your dataset
-data = pd.read_csv("your_dataset.csv")  # Replace with your actual dataset file
+data = pd.read_csv("Resumes-Dataset-with-Labels.xls")  # Replace with your actual dataset file
 
 # Check column names to ensure correct usage
 st.write("Columns in dataset:", data.columns)
