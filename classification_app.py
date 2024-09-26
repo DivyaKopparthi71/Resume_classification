@@ -1,11 +1,17 @@
 import streamlit as st
 import pandas as pd
 import pickle
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 import re
+import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+
+# Download necessary NLTK resources
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 # Load the model
 with open('resume_classification.pkl', 'rb') as file:
@@ -13,6 +19,7 @@ with open('resume_classification.pkl', 'rb') as file:
 
 # Load your dataset (ensure the path is correct)
 data = pd.read_csv('Resumes-Dataset-with-Labels.csv')
+
 
 # Define text cleaning function
 def text_clean_nltk(text):
