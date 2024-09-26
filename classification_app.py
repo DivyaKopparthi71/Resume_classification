@@ -6,20 +6,34 @@ import pickle
 with open('resume_classification.pkl', 'rb') as model_file:
     model = pickle.load(model_file)
 
-# Define function to classify resumes based on 'Label' and 'Cleaned_Tokens'
-def classify_resume(selected_resumes, role, skills, resumes_df):
-    # Ensure 'Cleaned_Tokens' and 'Label' exist in the dataset
-    if 'Cleaned_Tokens' not in resumes_df.columns or 'Label' not in resumes_df.columns:
-        st.error("The dataset does not contain 'Cleaned_Tokens' or 'Label' columns.")
+# Define function to classify resumes based on experience and skills
+def classify_resume(selected_resumes, experience, skills, resumes_df):
+    # Ensure 'experience' and 'File Name' exist in the dataset
+    if 'experience' not in resumes_df.columns or 'File Name' not in resumes_df.columns:
+        st.error("The dataset does not contain 'experience' or 'File Name' columns.")
         return pd.DataFrame()  # Return an empty DataFrame
 
-    # Filter selected resumes based on the role and skills
+    # Filter selected resumes based on experience and skills in the text file
+    def filter_skills_in_text(resume_text, skills):
+        """Check if all required skills are present in the resume text."""
+        return all(skill.strip().lower() in resume_text.lower() for skill in skills if skill)
+
     filtered_resumes = selected_resumes[
-        (selected_resumes['Label'] == role) & 
-        (selected_resumes['Cleaned_Tokens'].apply(lambda x: all(skill.strip().lower() in x.lower() for skill in skills if skill)))
+        (selected_resumes['experience'] >= experience) &  # Match experience
+        (selected_resumes['File Name'].apply(lambda filename: filter_skills_in_text(read_resume_text(filename), skills)))  # Match skills in resume text
     ]
     
     return filtered_resumes
+
+# Function to read resume text from a file
+def read_resume_text(filename):
+    """Reads the content of the resume text file."""
+    try:
+        with open(filename, 'r') as file:
+            return file.read()
+    except Exception as e:
+        st.error(f"Error reading file {filename}: {e}")
+        return ""
 
 # Load resumes dataset
 try:
@@ -52,15 +66,15 @@ if selected_indices:
     st.write("Selected Resumes:")
     st.dataframe(selected_resumes)
 
-    # Input for role selection (Admin, Developer, etc.)
-    role = st.selectbox('Select Role:', resumes_df['Label'].unique())
+    # Input for experience selection
+    experience = st.number_input('Minimum Experience (Years)', min_value=0, max_value=50, value=1)
 
     # Input for required skills
     skills_input = st.text_input('Required Skills (Comma Separated)').split(',')
 
     # Step 3: Button to trigger the filtering
     if st.button('Filter Selected Resumes'):
-        result = classify_resume(selected_resumes, role, skills_input, resumes_df)
+        result = classify_resume(selected_resumes, experience, skills_input, resumes_df)
 
         # Step 4: Display the result
         if not result.empty:
