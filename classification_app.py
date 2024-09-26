@@ -7,7 +7,6 @@ with open("resume_classification.pkl", 'rb') as file:
     model = pickle.load(file)
 
 # Load your resumes dataset
-# Assume the dataset has columns: 'Label', 'Resume'
 resumes_df = pd.read_csv("Resumes-Dataset-with-Labels.xls")  # Update with your actual file path
 
 # Define your labels based on the model training
@@ -30,23 +29,31 @@ if st.button('Predict'):
     # Process the inputs to match model expectations
     skills_list = [skill.strip() for skill in skills.split(',')]
     
-    # Prepare the input data for the model
+    # Create a single input row
     input_data = [label, experience, year_of_passing, education] + skills_list
     
-    # Make prediction
-    prediction = model.predict([input_data])
+    # Convert input_data to a DataFrame to ensure proper shape
+    input_df = pd.DataFrame([input_data], columns=['Label', 'Experience', 'Year_of_Passing', 'Education'] + [f'Skill_{i+1}' for i in range(len(skills_list))])
     
-    # Show prediction result
-    predicted_class = prediction[0]
-    st.write(f"Predicted Class: {predicted_class}")
+    # Ensure the features are aligned with the training data
+    try:
+        prediction = model.predict(input_df)
+        
+        # Show prediction result
+        predicted_class = prediction[0]
+        st.write(f"Predicted Class: {predicted_class}")
+        
+        # Filter resumes that match the predicted class from the DataFrame
+        matching_resumes = resumes_df[resumes_df['Label'] == predicted_class]
+        
+        # Display matching resumes
+        if not matching_resumes.empty:
+            st.write(f"Matching Resumes for {predicted_class}:")
+            for index, row in matching_resumes.iterrows():
+                st.write(f"Resume {index + 1}: {row['Resume']}")
+        else:
+            st.write("No resumes found for the predicted class.")
     
-    # Filter resumes that match the predicted class from the DataFrame
-    matching_resumes = resumes_df[resumes_df['Label'] == predicted_class]
-    
-    # Display matching resumes
-    if not matching_resumes.empty:
-        st.write(f"Matching Resumes for {predicted_class}:")
-        for index, row in matching_resumes.iterrows():
-            st.write(f"Resume {index + 1}: {row['Resume']}")
-    else:
-        st.write("No resumes found for the predicted class.")
+    except ValueError as e:
+        st.error(f"Error during prediction: {e}")
+
