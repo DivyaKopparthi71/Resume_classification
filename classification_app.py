@@ -18,7 +18,7 @@ with open('resume_classification.pkl', 'rb') as file:
     model_rfc = pickle.load(file)
 
 # Load your dataset (ensure the path is correct)
-data = pd.read_csv('Resumes-Dataset-with-Labels.csv')
+data = pd.read_csv('Resumes-Dataset-with-Labels.xls')
 
 
 # Define text cleaning function
