@@ -1,17 +1,23 @@
 import streamlit as st
 import pandas as pd
 import pickle
-from sklearn.feature_extraction.text import TfidfVectorizer
 import re
 import nltk
+from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Download necessary NLTK resources
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+# Specify NLTK data path if necessary
+nltk.data.path.append('/path/to/your/project/nltk_data')  # Adjust this path accordingly
+
+# Download necessary NLTK resources (suppress output)
+try:
+    nltk.download('punkt', quiet=True)
+    nltk.download('stopwords', quiet=True)
+    nltk.download('wordnet', quiet=True)
+except LookupError:
+    st.warning("NLTK resources not found, please check your setup.")
 
 # Load the model
 with open('resume_classification.pkl', 'rb') as file:
@@ -19,7 +25,6 @@ with open('resume_classification.pkl', 'rb') as file:
 
 # Load your dataset (ensure the path is correct)
 data = pd.read_csv('Resumes-Dataset-with-Labels.xls')
-
 
 # Define text cleaning function
 def text_clean_nltk(text):
