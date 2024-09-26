@@ -1,13 +1,17 @@
 import streamlit as st
 import pandas as pd
 import pickle
+from sklearn.feature_extraction.text import CountVectorizer
 
 # Load the model
 with open('resume_classification.pkl', 'rb') as file:
     model_rfc = pickle.load(file)
 
-# Load your dataset (replace 'your_dataset.csv' with your actual file path)
-data = pd.read_csv('Resumes-Dataset-with-Labels.xls')  # Update this line if your data is in a different format
+# Load your dataset (replace 'Resumes-Dataset-with-Labels.xls' with your actual file path)
+data = pd.read_excel('Resumes-Dataset-with-Labels.xls')  # Use read_excel for .xls files
+
+# Initialize your vectorizer (use the same parameters as in training)
+vectorizer = CountVectorizer()  # Replace with your actual vectorizer if applicable
 
 # Streamlit application
 st.title("Resume Classification")
@@ -26,12 +30,12 @@ if st.button("Predict"):
     # Preprocess the input
     user_input = f"{skills} {experience}"
     
-    # Here you would typically preprocess the input in the same way as you did for your training data
-    # Example: Clean and tokenize the input as needed
-    # cleaned_input = your_preprocessing_function(user_input)
+    # Here, you should preprocess the input to match your model's expectations
+    # For example, if you used CountVectorizer for training:
+    cleaned_input = vectorizer.transform([user_input])  # Transform the input text to the feature matrix
     
     # Make prediction
-    prediction = model_rfc.predict([user_input])  # Ensure this matches your model's input requirements
+    prediction = model_rfc.predict(cleaned_input)  # Use the cleaned input for prediction
 
     # Display the prediction result
     st.write("Predicted Resume Category: ", prediction[0])
@@ -48,6 +52,3 @@ if st.button("Predict"):
         st.dataframe(selected_data[['File Name', 'Label']])
     else:
         st.write("No resumes selected.")
-
-
-#Resumes-Dataset-with-Labels.xls
