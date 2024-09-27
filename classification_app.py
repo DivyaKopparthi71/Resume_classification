@@ -133,7 +133,7 @@ if st.button('Classify') or st.session_state.get('classified', False):
         for resume in st.session_state['resumes_data']:
             if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
                 # Check if year of passing matches the specified range
-                if any(year in resume['resume_text'] for year in year_of_passing):
+                if any(str(year) in resume['resume_text'] for year in year_of_passing):
                     filtered_resumes.append(resume)
 
         if filtered_resumes:
