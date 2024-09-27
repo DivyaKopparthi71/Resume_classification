@@ -162,24 +162,25 @@ if st.button('Classify') and skills:  # Ensure skills are selected
                         st.session_state['preview_states'][resume['file_name']] = False
 
                     # Button to toggle preview
-                    if st.button(f"{'Hide' if st.session_state['preview_states'][resume['file_name']] else 'Show'} {resume['file_name']}", key=f"preview_{resume['file_name']}"):
+                    if st.button(f"{'Hide' if st.session_state['preview_states'][resume['file_name']] else 'Show'} Preview", key=f"preview_{resume['file_name']}"):
                         st.session_state['preview_states'][resume['file_name']] = not st.session_state['preview_states'][resume['file_name']]
 
                     # Show or hide the preview based on the state
                     if st.session_state['preview_states'][resume['file_name']]:
-                        st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=f"textarea_{resume['file_name']}")
+                        st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=f"textarea_{resume['file_name']}", disabled=True)
 
                 with col2:
                     # Add download button with a distinct download icon
                     st.download_button(
-                        label="☁️",  # Cloud icon for download
+                        label="☁️ Download",
                         data=resume['resume_data'],
                         file_name=resume['file_name'],
-                        key=f"download_{resume['file_name']}",
-                        help="Click to download the resume"
+                        mime="application/octet-stream"
                     )
 
         else:
             st.write("No resumes matched your criteria.")
+    else:
+        st.write("Please upload at least one resume and select at least one skill.")
 else:
-    st.warning("Please select at least one skill to classify resumes.")
+    st.warning("Please upload at least one resume and select at least one skill before classifying.")
