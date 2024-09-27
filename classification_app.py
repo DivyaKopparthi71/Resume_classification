@@ -132,7 +132,7 @@ if st.button('Classify') or st.session_state.get('classified', False):
                 with col2:
                     # Add download button with a distinct download icon
                     st.download_button(
-                        label="Download",  # Changed to descriptive label
+                        label="☁️",  # Changed to descriptive label
                         data=resume['resume_data'],
                         file_name=resume['file_name'],
                         key=f"download_{resume['file_name']}",
