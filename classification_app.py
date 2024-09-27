@@ -9,7 +9,7 @@ import os
 st.title('Resume Classification and Skill Matching')
 
 # Load the pre-trained SVC model and DataFrame
-svc_model = pickle.load(open("model_svc.pkl", 'rb'))
+svc_model = pickle.load(open("resume_classification_svc.pkl", 'rb'))
 df = pickle.load(open("dataset_svc.pkl", 'rb'))
 
 # Input files (resumes)
