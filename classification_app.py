@@ -5,7 +5,7 @@ import PyPDF2
 import docx2txt
 
 # Streamlit UI
-st.title('Resume Classification and Skill Matching')
+st.title('Resume Classification')
 
 # Load the pre-trained SVC model and DataFrame (assuming these are required later in the code)
 svc_model = pickle.load(open("resume_classification_svc.pkl", 'rb'))
