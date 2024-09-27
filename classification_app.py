@@ -3,17 +3,16 @@ import pandas as pd
 import pickle
 import PyPDF2
 import docx2txt
-import os
 
 # Streamlit UI
 st.title('Resume Classification and Skill Matching')
 
-# Load the pre-trained SVC model and DataFrame
+# Load the pre-trained SVC model and DataFrame (assuming these are required later in the code)
 svc_model = pickle.load(open("resume_classification_svc.pkl", 'rb'))
 df = pickle.load(open("dataset_svc.pkl", 'rb'))
 
 # Input files (resumes)
-uploaded_files = st.file_uploader("Upload your resumes", type=['pdf', 'doc', 'docx'], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload your resumes", type=['pdf', 'docx'], accept_multiple_files=True)
 
 # Skill selection
 skills = st.multiselect("Select your skills:", [
@@ -47,7 +46,7 @@ def extract_text_from_pdf(pdf_file):
     pdf_reader = PyPDF2.PdfReader(pdf_file)
     for page_num in range(len(pdf_reader.pages)):
         page = pdf_reader.pages[page_num]
-        text += page.extract_text() or ""  # Handle cases where text extraction may fail
+        text += page.extract_text() or ""
     return text
 
 # Function to extract text from a .docx file
@@ -61,17 +60,13 @@ resumes_data = []
 # Process the uploaded files
 if uploaded_files and skills:
     for uploaded_file in uploaded_files:
-        file_extension = uploaded_file.name.split('.')[-1]
+        file_extension = uploaded_file.name.split('.')[-1].lower()
 
         # Extract text based on file type
         if file_extension == 'pdf':
             resume_text = extract_text_from_pdf(uploaded_file)
         elif file_extension == 'docx':
             resume_text = extract_text_from_docx(uploaded_file)
-        elif file_extension == 'doc':
-            # For .doc files, handle them here if needed or skip
-            st.write(f"Unsupported file format: {file_extension}")
-            continue
         else:
             st.write(f"Unsupported file format: {file_extension}")
             continue
