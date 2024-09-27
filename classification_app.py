@@ -179,7 +179,7 @@ if st.button('Classify') or st.session_state.get('classified', False):
 
                 with col2:
                     # Add download button with a unique key
-                    st.download_button("Download", data=resume['resume_data'], file_name=resume['file_name'], key=f"download_{resume['file_name']}")
+                    st.download_button("☁️", data=resume['resume_data'], file_name=resume['file_name'], key=f"download_{resume['file_name']}")
 
         else:
             st.write("No matching resumes found based on the selected criteria.")
