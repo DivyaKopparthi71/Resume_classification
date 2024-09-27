@@ -121,10 +121,8 @@ if uploaded_files and skills:
     # Store in session state to retain data
     st.session_state['resumes_data'] = resumes_data
 
-# Filter resumes based solely on selected skills
-if st.button('Classify') or st.session_state.get('classified', False):
-    st.session_state['classified'] = True  # Mark as classified
-
+# Button to classify resumes
+if st.button('Classify'):
     if st.session_state['resumes_data']:
         # Filter resumes based only on matched skills
         filtered_resumes = [
