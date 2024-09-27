@@ -87,6 +87,7 @@ if st.button('Classify') or st.session_state.get('classified', False):
     st.session_state['classified'] = True  # Mark as classified
 
     if st.session_state['resumes_data']:
+
         experience_filters = {
             "Fresher (0-1 years)": ["fresher", "0 years", "1 year"],
             "2 years": ["2 years"],
@@ -104,21 +105,23 @@ if st.button('Classify') or st.session_state.get('classified', False):
 
         if filtered_resumes:
             st.write(f"### Resumes matching {selected_experience} and selected skills:")
+
+            # Display resumes in a box with download icon on the right
             for resume in filtered_resumes:
-                col1, col2 = st.columns([4, 1])  # Create columns for layout
+                col1, col2 = st.columns([9, 1])  # Layout with a preview area and download symbol
 
                 with col1:
-                    # Display file name and preview button
-                    st.write(f"**Resume:** {resume['file_name']}")
-                    if st.button(f"Preview {resume['file_name']}"):
-                        st.text_area("Preview", resume['resume_text'], height=300)
+                    # Display resume text in a box
+                    st.write(f"**{resume['file_name']}**")
+                    st.text_area(label="", value=resume['resume_text'], height=300, key=resume['file_name'])
 
                 with col2:
-                    # Add a download button
+                    # Add download icon as a button in the right column
                     st.download_button(
-                        label="Download",
+                        label="📥",  # Use an icon as label
                         data=resume['resume_data'],
-                        file_name=resume['file_name']
+                        file_name=resume['file_name'],
+                        key=f"download_{resume['file_name']}"
                     )
         else:
             st.write(f"No resumes match the selected experience level ({selected_experience}) and skills.")
