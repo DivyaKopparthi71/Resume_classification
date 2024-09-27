@@ -106,14 +106,15 @@ if st.button('Classify') or st.session_state.get('classified', False):
         if filtered_resumes:
             st.write(f"### Resumes matching {selected_experience} and selected skills:")
 
-            # Display resumes in a box with download icon on the right
+            # Display resumes with a button to preview text
             for resume in filtered_resumes:
                 col1, col2 = st.columns([9, 1])  # Layout with a preview area and download symbol
 
                 with col1:
-                    # Display resume text in a box
+                    # Display file name and a button to show resume
                     st.write(f"**{resume['file_name']}**")
-                    st.text_area(label="", value=resume['resume_text'], height=300, key=resume['file_name'])
+                    if st.button(f"Preview {resume['file_name']}", key=f"preview_{resume['file_name']}"):
+                        st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=resume['file_name'])
 
                 with col2:
                     # Add download icon as a button in the right column
