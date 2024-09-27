@@ -35,6 +35,34 @@ experience_options = [
 ]
 selected_experience = st.selectbox("Select your experience level:", experience_options)
 
+# Year of Passing selection (custom range)
+year_of_passing_input = st.text_input("Enter Year of Passing (e.g., 2019-2023 or 2010):")
+year_of_passing = []
+
+if year_of_passing_input:
+    if '-' in year_of_passing_input:  # If a range is given
+        start_year, end_year = map(int, year_of_passing_input.split('-'))
+        year_of_passing = list(range(start_year, end_year + 1))
+    else:  # If a single year is given
+        year_of_passing = [int(year_of_passing_input)]
+
+# Professional Role selection
+professional_roles = [
+    "PeopleSoft Admin", "Developer", "Software Engineer", "PeopleSoft Consultant",
+    "Senior Software Engineer", "SQL Developer", "React Developer", "UI Developer",
+    "Front End Developer", "Web Developer", "Not Specified", "Techno Functional Consultant",
+    "Workday Consultant", "Workday Integration Consultant",
+    "Data Scientist", "Data Analyst", "Business Analyst", "Machine Learning Engineer",
+    "DevOps Engineer", "System Architect", "Database Administrator", "Cloud Engineer",
+    "Mobile Application Developer", "Full Stack Developer", "Scrum Master",
+    "Network Engineer", "Project Manager", "Product Manager", "IT Support Specialist",
+    "Cybersecurity Analyst", "QA Engineer", "Game Developer", "Salesforce Developer",
+    "Digital Marketing Specialist", "Content Strategist", "Technical Writer",
+    "UI/UX Designer", "Software Tester", "Embedded Systems Engineer", 
+    "Infrastructure Engineer", "Blockchain Developer", "AI Researcher"
+]
+selected_role = st.selectbox("Select Professional Role:", professional_roles)
+
 # Function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file):
     text = ""
@@ -104,10 +132,12 @@ if st.button('Classify') or st.session_state.get('classified', False):
         filtered_resumes = []
         for resume in st.session_state['resumes_data']:
             if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
-                filtered_resumes.append(resume)
+                # Check if year of passing matches the specified range
+                if any(year in resume['resume_text'] for year in year_of_passing):
+                    filtered_resumes.append(resume)
 
         if filtered_resumes:
-            st.write(f"### Resumes matching {selected_experience} and selected skills:")
+            st.write(f"### Resumes matching {selected_experience}, Year of Passing: {year_of_passing_input}, Role: {selected_role}, and selected skills:")
 
             # Display resumes with a button to toggle preview text
             for resume in filtered_resumes:
@@ -139,6 +169,4 @@ if st.button('Classify') or st.session_state.get('classified', False):
                         help="Click to download the resume"  # Optional: add help text
                     )
         else:
-            st.write(f"No resumes match the selected experience level ({selected_experience}) and skills.")
-    else:
-        st.write("Please upload resumes and select skills.")
+            st.write(f"No resumes match the selected experience level ({selected_experience}), Year of Passing ({year_of_passing_input
