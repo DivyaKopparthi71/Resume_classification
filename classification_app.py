@@ -102,4 +102,71 @@ if uploaded_files and skills:
         matched_skills = [skill for skill in skills if skill.lower() in resume_text.lower()]
         
         # Add resume details if skills matched
-        if
+        if matched_skills:
+            resumes_data.append({
+                'file_name': uploaded_file.name,
+                'matched_skills': matched_skills,
+                'resume_text': resume_text,
+                'resume_data': uploaded_file.read()  # Store resume file for later download
+            })
+    
+    # Store in session state to retain data
+    st.session_state['resumes_data'] = resumes_data
+
+# Filter resumes based on experience level and match them with selected skills
+if st.button('Classify') or st.session_state.get('classified', False):
+    st.session_state['classified'] = True  # Mark as classified
+
+    if st.session_state['resumes_data']:
+
+        experience_filters = {
+            "Fresher (0-1 years)": ["fresher", "0 years", "1 year"],
+            "2 years": ["2 years"],
+            ">2 years": [f"{i} years" for i in range(3, 11)],
+            "2-5 years": ["2 years", "3 years", "4 years", "5 years"],
+            "5-10 years": ["5 years", "6 years", "7 years", "8 years", "9 years", "10 years"],
+            "<10 years": ["fresher", "1 year", "2 years", "3 years", "4 years", "5 years", "6 years", "7 years", "8 years", "9 years"]
+        }
+
+        # Display resumes that meet both skills and experience criteria
+        filtered_resumes = []
+        for resume in st.session_state['resumes_data']:
+            if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
+                # Check if year of passing matches the specified range
+                if any(year in resume['resume_text'] for year in year_of_passing):
+                    filtered_resumes.append(resume)
+
+        if filtered_resumes:
+            st.write(f"### Resumes matching {selected_experience}, Year of Passing: {year_of_passing_input}, Role: {selected_role}, and selected skills:")
+
+            # Display resumes with a button to toggle preview text
+            for resume in filtered_resumes:
+                col1, col2 = st.columns([9, 1])  # Layout with a preview area and download symbol
+
+                with col1:
+                    # Display file name and a button to toggle resume preview
+                    st.write(f"**{resume['file_name']}**")
+
+                    # Initialize preview state if not set
+                    if resume['file_name'] not in st.session_state['preview_states']:
+                        st.session_state['preview_states'][resume['file_name']] = False
+
+                    # Button to toggle preview
+                    if st.button(f"{'Hide' if st.session_state['preview_states'][resume['file_name']] else 'Show'} {resume['file_name']}", key=f"preview_{resume['file_name']}"):
+                        st.session_state['preview_states'][resume['file_name']] = not st.session_state['preview_states'][resume['file_name']]
+
+                    # Show or hide the preview based on the state
+                    if st.session_state['preview_states'][resume['file_name']]:
+                        st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=f"textarea_{resume['file_name']}")
+
+                with col2:
+                    # Add download button with a distinct download icon
+                    st.download_button(
+                        label="☁️",  # Cloud icon for download
+                        data=resume['resume_data'],
+                        file_name=resume['file_name'],
+                        key=f"download_{resume['file_name']}",
+                        help="Click to download the resume"  # Optional: add help text
+                    )
+        else:
+            st.write(f"No resumes match the selected experience level ({selected_experience}), Year of Passing ({year_of_passing_input}), and Role ({selected_role}).")
