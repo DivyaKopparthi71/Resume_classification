@@ -14,7 +14,7 @@ df = pickle.load(open("dataset_svc.pkl", 'rb'))
 # Input files (resumes)
 uploaded_files = st.file_uploader("Upload your resumes", type=['pdf', 'docx'], accept_multiple_files=True)
 
-# Skill selection
+# Skill selection (mandatory)
 skills = st.multiselect("Select your skills:", [
     "Benefits", "Integration", "PeopleSoft", "Update Management", "PeopleTools", "Reporting",
     "Oracle 12c", "Studio", "Windows Server", "Application Designer", "PeopleSoft HCM",
@@ -29,13 +29,13 @@ skills = st.multiselect("Select your skills:", [
     "Software Testing"
 ])
 
-# Experience level selection
+# Experience level selection (optional)
 experience_options = [
     "Fresher (0-1 years)", "2 years", ">2 years", "2-5 years", "5-10 years", "<10 years"
 ]
-selected_experience = st.selectbox("Select your experience level:", experience_options)
+selected_experience = st.selectbox("Select your experience level:", experience_options, index=0)
 
-# Year of Passing selection (custom range)
+# Year of Passing selection (optional, custom range)
 year_of_passing_input = st.text_input("Enter Year of Passing (e.g., 2019-2023 or 2010):")
 year_of_passing = []
 
@@ -46,7 +46,7 @@ if year_of_passing_input:
     else:  # If a single year is given
         year_of_passing = [int(year_of_passing_input)]
 
-# Professional Role selection
+# Professional Role selection (optional)
 professional_roles = [
     "PeopleSoft Admin", "Developer", "Software Engineer", "PeopleSoft Consultant",
     "Senior Software Engineer", "SQL Developer", "React Developer", "UI Developer",
@@ -61,7 +61,10 @@ professional_roles = [
     "UI/UX Designer", "Software Tester", "Embedded Systems Engineer", 
     "Infrastructure Engineer", "Blockchain Developer", "AI Researcher"
 ]
-selected_role = st.selectbox("Select Professional Role:", professional_roles)
+selected_role = st.selectbox("Select Professional Role:", professional_roles, index=0)
+
+# Display selected role above results
+st.write(f"### Selected Professional Role: {selected_role}")
 
 # Function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file):
@@ -84,7 +87,7 @@ if 'preview_states' not in st.session_state:
     st.session_state['preview_states'] = {}  # Dictionary to track preview states for each resume
 
 # Process the uploaded files
-if uploaded_files and skills:
+if uploaded_files and skills:  # Ensure skills are selected
     resumes_data = []
     for uploaded_file in uploaded_files:
         file_extension = uploaded_file.name.split('.')[-1].lower()
@@ -170,3 +173,4 @@ if st.button('Classify') or st.session_state.get('classified', False):
                     )
         else:
             st.write(f"No resumes match the selected experience level ({selected_experience}), Year of Passing ({year_of_passing_input}), and Role ({selected_role}).")
+else
