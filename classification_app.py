@@ -133,10 +133,16 @@ if st.button('Classify') and skills:  # Ensure skills are selected
         filtered_resumes = []
         for resume in st.session_state['resumes_data']:
             try:
-                if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
-                    # Check if year of passing matches the specified range
-                    if any(str(year) in resume['resume_text'] for year in year_of_passing):
-                        filtered_resumes.append(resume)
+                matches_experience = True  # By default, consider experience match
+                if selected_experience:  # Only check if an experience level is selected
+                    matches_experience = any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience])
+                
+                # Check if year of passing matches the specified range if provided
+                matches_year = any(str(year) in resume['resume_text'] for year in year_of_passing) if year_of_passing else True
+
+                if matches_experience and matches_year:
+                    filtered_resumes.append(resume)
+
             except KeyError as e:
                 st.error(f"Error processing resume: {e}")
 
@@ -170,9 +176,10 @@ if st.button('Classify') and skills:  # Ensure skills are selected
                         data=resume['resume_data'],
                         file_name=resume['file_name'],
                         key=f"download_{resume['file_name']}",
-                        help="Click to download the resume"  # Optional: add help text
+                        help="Click to download the resume"
                     )
+
         else:
-            st.write(f"No resumes match the selected experience level ({selected_experience}), Year of Passing: {year_of_passing_input}, Role: {selected_role}, and selected skills.")
-    else:
-        st.write("No resumes were processed. Please upload resumes and select skills.")
+            st.write("No resumes matched your criteria.")
+else:
+    st.warning("Please select at least one skill to classify resumes.")
