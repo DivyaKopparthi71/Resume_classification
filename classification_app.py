@@ -31,12 +31,7 @@ skills = st.multiselect("Select your skills:", [
 
 # Experience level selection
 experience_options = [
-    "Fresher (0-1 years)",
-    "2 years",
-    ">2 years",
-    "2-5 years",
-    "5-10 years",
-    "<10 years"
+    "Fresher (0-1 years)", "2 years", ">2 years", "2-5 years", "5-10 years", "<10 years"
 ]
 selected_experience = st.selectbox("Select your experience level:", experience_options)
 
@@ -51,14 +46,15 @@ def extract_text_from_pdf(pdf_file):
 
 # Function to extract text from a .docx file
 def extract_text_from_docx(docx_file):
-    text = docx2txt.process(docx_file)
-    return text
+    return docx2txt.process(docx_file)
 
-# Initialize a list to store resumes with their details
-resumes_data = []
+# Initialize session state to store resumes data and results
+if 'resumes_data' not in st.session_state:
+    st.session_state['resumes_data'] = []
 
 # Process the uploaded files
 if uploaded_files and skills:
+    resumes_data = []
     for uploaded_file in uploaded_files:
         file_extension = uploaded_file.name.split('.')[-1].lower()
 
@@ -82,10 +78,15 @@ if uploaded_files and skills:
                 'resume_text': resume_text,
                 'resume_data': uploaded_file.read()  # Store resume file for later download
             })
+    
+    # Store in session state to retain data
+    st.session_state['resumes_data'] = resumes_data
 
 # Filter resumes based on experience level and match them with selected skills
-if st.button('Classify'):
-    if resumes_data:
+if st.button('Classify') or st.session_state.get('classified', False):
+    st.session_state['classified'] = True  # Mark as classified
+
+    if st.session_state['resumes_data']:
         experience_filters = {
             "Fresher (0-1 years)": ["fresher", "0 years", "1 year"],
             "2 years": ["2 years"],
@@ -97,7 +98,7 @@ if st.button('Classify'):
 
         # Display resumes that meet both skills and experience criteria
         filtered_resumes = []
-        for resume in resumes_data:
+        for resume in st.session_state['resumes_data']:
             if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
                 filtered_resumes.append(resume)
 
