@@ -52,6 +52,9 @@ def extract_text_from_docx(docx_file):
 if 'resumes_data' not in st.session_state:
     st.session_state['resumes_data'] = []
 
+if 'preview_states' not in st.session_state:
+    st.session_state['preview_states'] = {}  # Dictionary to track preview states for each resume
+
 # Process the uploaded files
 if uploaded_files and skills:
     resumes_data = []
@@ -106,15 +109,25 @@ if st.button('Classify') or st.session_state.get('classified', False):
         if filtered_resumes:
             st.write(f"### Resumes matching {selected_experience} and selected skills:")
 
-            # Display resumes with a button to preview text
+            # Display resumes with a button to toggle preview text
             for resume in filtered_resumes:
                 col1, col2 = st.columns([9, 1])  # Layout with a preview area and download symbol
 
                 with col1:
-                    # Display file name and a button to show resume
+                    # Display file name and a button to toggle resume preview
                     st.write(f"**{resume['file_name']}**")
-                    if st.button(f"Preview {resume['file_name']}", key=f"preview_{resume['file_name']}"):
-                        st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=resume['file_name'])
+
+                    # Initialize preview state if not set
+                    if resume['file_name'] not in st.session_state['preview_states']:
+                        st.session_state['preview_states'][resume['file_name']] = False
+
+                    # Button to toggle preview
+                    if st.button(f"{'Hide' if st.session_state['preview_states'][resume['file_name']] else 'Show'} {resume['file_name']}", key=f"preview_{resume['file_name']}"):
+                        st.session_state['preview_states'][resume['file_name']] = not st.session_state['preview_states'][resume['file_name']]
+
+                    # Show or hide the preview based on the state
+                    if st.session_state['preview_states'][resume['file_name']]:
+                        st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=f"textarea_{resume['file_name']}")
 
                 with col2:
                     # Add download icon as a button in the right column
