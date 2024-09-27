@@ -3,8 +3,6 @@ import pandas as pd
 import pickle
 import PyPDF2
 import docx2txt
-import pythoncom
-from win32com import client
 import os
 
 # Streamlit UI
@@ -49,33 +47,13 @@ def extract_text_from_pdf(pdf_file):
     pdf_reader = PyPDF2.PdfReader(pdf_file)
     for page_num in range(len(pdf_reader.pages)):
         page = pdf_reader.pages[page_num]
-        text += page.extract_text()
+        text += page.extract_text() or ""  # Handle cases where text extraction may fail
     return text
 
 # Function to extract text from a .docx file
 def extract_text_from_docx(docx_file):
     text = docx2txt.process(docx_file)
     return text
-
-# Function to extract text from a .doc file using win32com
-def extract_text_from_doc(doc_file):
-    # Save the uploaded file temporarily
-    with open("temp_doc_file.doc", "wb") as f:
-        f.write(doc_file.getbuffer())
-
-    pythoncom.CoInitialize()  # Initialize the COM library
-    word = client.Dispatch("Word.Application")
-
-    # Open the temporarily saved file using win32com
-    doc = word.Documents.Open(os.path.abspath("temp_doc_file.doc"))
-    doc_text = doc.Range().Text
-    doc.Close()
-    word.Quit()
-
-    # Remove the temporary file after processing
-    os.remove("temp_doc_file.doc")
-
-    return doc_text
 
 # Initialize a list to store resumes with their details
 resumes_data = []
@@ -91,7 +69,9 @@ if uploaded_files and skills:
         elif file_extension == 'docx':
             resume_text = extract_text_from_docx(uploaded_file)
         elif file_extension == 'doc':
-            resume_text = extract_text_from_doc(uploaded_file)
+            # For .doc files, handle them here if needed or skip
+            st.write(f"Unsupported file format: {file_extension}")
+            continue
         else:
             st.write(f"Unsupported file format: {file_extension}")
             continue
@@ -113,48 +93,17 @@ if uploaded_files and skills:
 
 # Filter resumes based on experience level
 if resumes_data:
-    if selected_experience == "Fresher (0-1 years)":
-        st.write("### Resumes for Freshers (0-1 years):")
-        for resume in resumes_data:
-            if "fresher" in resume['resume_text'].lower() or "1 year" in resume['resume_text'].lower():
-                st.write(f"**Resume:** {resume['file_name']}")
-                st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
+    experience_filters = {
+        "Fresher (0-1 years)": ["fresher", "1 year"],
+        "2 years": ["2 years"],
+        ">2 years": [f"{i} years" for i in range(3, 11)],
+        "2-5 years": ["2 years", "3 years", "4 years"],
+        "5-10 years": ["5 years", "6 years", "7 years", "8 years", "9 years", "10 years"],
+        "<10 years": ["fresher", "1 year", "2 years", "3 years", "4 years", "5 years", "6 years", "7 years", "8 years", "9 years"]
+    }
 
-    elif selected_experience == "2 years":
-        st.write("### Resumes for 2 years Experience:")
-        for resume in resumes_data:
-            if "2 years" in resume['resume_text'].lower():
-                st.write(f"**Resume:** {resume['file_name']}")
-                st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
-
-    elif selected_experience == ">2 years":
-        st.write("### Resumes for Experience > 2 years:")
-        for resume in resumes_data:
-            # Match resumes with experience greater than 2 years
-            for i in range(3, 11):  # Checking from 3 to 10 years
-                if f"{i} years" in resume['resume_text'].lower():
-                    st.write(f"**Resume:** {resume['file_name']}")
-                    st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
-                    break
-
-    elif selected_experience == "2-5 years":
-        st.write("### Resumes for Experience 2-5 years:")
-        for resume in resumes_data:
-            if "2 years" in resume['resume_text'].lower() or "3 years" in resume['resume_text'].lower() or "4 years" in resume['resume_text'].lower():
-                st.write(f"**Resume:** {resume['file_name']}")
-                st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
-
-    elif selected_experience == "5-10 years":
-        st.write("### Resumes for Experience 5-10 years:")
-        for resume in resumes_data:
-            if "5 years" in resume['resume_text'].lower() or "6 years" in resume['resume_text'].lower() or "7 years" in resume['resume_text'].lower() or "8 years" in resume['resume_text'].lower() or "9 years" in resume['resume_text'].lower() or "10 years" in resume['resume_text'].lower():
-                st.write(f"**Resume:** {resume['file_name']}")
-                st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
-
-    elif selected_experience == "<10 years":
-        st.write("### Resumes for Experience < 10 years:")
-        for resume in resumes_data:
-            if "fresher" in resume['resume_text'].lower() or "1 year" in resume['resume_text'].lower() or "2 years" in resume['resume_text'].lower() or "3 years" in resume['resume_text'].lower() or "4 years" in resume['resume_text'].lower() or "5 years" in resume['resume_text'].lower() or "6 years" in resume['resume_text'].lower() or "7 years" in resume['resume_text'].lower() or "8 years" in resume['resume_text'].lower() or "9 years" in resume['resume_text'].lower():
-                st.write(f"**Resume:** {resume['file_name']}")
-                st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
-
+    st.write(f"### Resumes for {selected_experience}:")
+    for resume in resumes_data:
+        if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
+            st.write(f"**Resume:** {resume['file_name']}")
+            st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
