@@ -177,9 +177,7 @@ if st.button('Classify') and skills:  # Ensure skills are selected
                         file_name=resume['file_name'],
                         mime="application/octet-stream"
                     )
-
         else:
-            st.write("No resumes matched your criteria.")
+            st.write("No resumes matched the selected criteria.")
     else:
         st.write("No resumes uploaded yet.")
-
