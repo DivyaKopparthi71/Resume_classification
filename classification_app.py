@@ -130,12 +130,13 @@ if st.button('Classify') or st.session_state.get('classified', False):
                         st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=f"textarea_{resume['file_name']}")
 
                 with col2:
-                    # Add download icon as a button in the right column
+                    # Add download button with a distinct download icon
                     st.download_button(
-                        label="📥",  # Use an icon as label
+                        label="Download Resume",  # Changed to descriptive label
                         data=resume['resume_data'],
                         file_name=resume['file_name'],
-                        key=f"download_{resume['file_name']}"
+                        key=f"download_{resume['file_name']}",
+                        help="Click to download the resume"  # Optional: add help text
                     )
         else:
             st.write(f"No resumes match the selected experience level ({selected_experience}) and skills.")
