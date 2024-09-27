@@ -79,7 +79,8 @@ if uploaded_files and skills:
             resumes_data.append({
                 'file_name': uploaded_file.name,
                 'matched_skills': matched_skills,
-                'resume_text': resume_text
+                'resume_text': resume_text,
+                'resume_data': uploaded_file.read()  # Store resume file for later download
             })
 
 # Filter resumes based on experience level and match them with selected skills
@@ -105,6 +106,13 @@ if st.button('Classify'):
             for resume in filtered_resumes:
                 st.write(f"**Resume:** {resume['file_name']}")
                 st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
+
+                # Add a download button for each resume
+                st.download_button(
+                    label=f"Download {resume['file_name']}",
+                    data=resume['resume_data'],
+                    file_name=resume['file_name']
+                )
         else:
             st.write(f"No resumes match the selected experience level ({selected_experience}) and skills.")
     else:
