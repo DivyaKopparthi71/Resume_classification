@@ -82,27 +82,30 @@ if uploaded_files and skills:
                 'resume_text': resume_text
             })
 
-# Filter resumes based on experience level
-if resumes_data:
-    experience_filters = {
-        "Fresher (0-1 years)": ["fresher", "0 years", "1 year"],
-        "2 years": ["2 years"],
-        ">2 years": [f"{i} years" for i in range(3, 11)],
-        "2-5 years": ["2 years", "3 years", "4 years", "5 years"],
-        "5-10 years": ["5 years", "6 years", "7 years", "8 years", "9 years", "10 years"],
-        "<10 years": ["fresher", "1 year", "2 years", "3 years", "4 years", "5 years", "6 years", "7 years", "8 years", "9 years"]
-    }
+# Filter resumes based on experience level and match them with selected skills
+if st.button('Classify'):
+    if resumes_data:
+        experience_filters = {
+            "Fresher (0-1 years)": ["fresher", "0 years", "1 year"],
+            "2 years": ["2 years"],
+            ">2 years": [f"{i} years" for i in range(3, 11)],
+            "2-5 years": ["2 years", "3 years", "4 years", "5 years"],
+            "5-10 years": ["5 years", "6 years", "7 years", "8 years", "9 years", "10 years"],
+            "<10 years": ["fresher", "1 year", "2 years", "3 years", "4 years", "5 years", "6 years", "7 years", "8 years", "9 years"]
+        }
 
-    # Display resumes that meet both skills and experience criteria
-    filtered_resumes = []
-    for resume in resumes_data:
-        if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
-            filtered_resumes.append(resume)
+        # Display resumes that meet both skills and experience criteria
+        filtered_resumes = []
+        for resume in resumes_data:
+            if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
+                filtered_resumes.append(resume)
 
-    if filtered_resumes:
-        st.write(f"### Resumes matching {selected_experience} and selected skills:")
-        for resume in filtered_resumes:
-            st.write(f"**Resume:** {resume['file_name']}")
-            st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
+        if filtered_resumes:
+            st.write(f"### Resumes matching {selected_experience} and selected skills:")
+            for resume in filtered_resumes:
+                st.write(f"**Resume:** {resume['file_name']}")
+                st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
+        else:
+            st.write(f"No resumes match the selected experience level ({selected_experience}) and skills.")
     else:
-        st.write(f"No resumes match the selected experience level ({selected_experience}) and skills.")
+        st.write("Please upload resumes and select skills.")
