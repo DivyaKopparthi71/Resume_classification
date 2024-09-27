@@ -86,8 +86,15 @@ if 'preview_states' not in st.session_state:
 # Process the uploaded files
 if uploaded_files and skills:
     resumes_data = []
+    processed_file_names = set()  # Set to keep track of processed file names
+
     for uploaded_file in uploaded_files:
         file_extension = uploaded_file.name.split('.')[-1].lower()
+
+        # Check for duplicates
+        if uploaded_file.name in processed_file_names:
+            st.warning(f"Duplicate file detected: {uploaded_file.name}. This file will be skipped.")
+            continue
 
         # Extract text based on file type
         if file_extension == 'pdf':
@@ -109,6 +116,7 @@ if uploaded_files and skills:
                 'resume_text': resume_text,
                 'resume_data': uploaded_file.read()  # Store resume file for later download
             })
+            processed_file_names.add(uploaded_file.name)  # Add file name to processed set
     
     # Store in session state to retain data
     st.session_state['resumes_data'] = resumes_data
@@ -170,13 +178,10 @@ if st.button('Classify') or st.session_state.get('classified', False):
                         st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=f"textarea_{resume['file_name']}")
 
                 with col2:
-                    # Add download button with a distinct download icon
-                    st.download_button(
-                        label="☁️",  # Cloud icon for download
-                        data=resume['resume_data'],
-                        file_name=resume['file_name'],
-                        key=f"download_{resume['file_name']}",
-                        help="Click to download the resume"  # Optional: add help text
-                    )
+                    # Add download button with a unique key
+                    st.download_button("Download", data=resume['resume_data'], file_name=resume['file_name'], key=f"download_{resume['file_name']}")
+
         else:
-            st.write("No resumes match the selected skills.")
+            st.write("No matching resumes found based on the selected criteria.")
+    else:
+        st.write("No resumes uploaded.")
