@@ -105,19 +105,21 @@ if st.button('Classify') or st.session_state.get('classified', False):
         if filtered_resumes:
             st.write(f"### Resumes matching {selected_experience} and selected skills:")
             for resume in filtered_resumes:
-                st.write(f"**Resume:** {resume['file_name']}")
-                st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
+                col1, col2 = st.columns([4, 1])  # Create columns for layout
 
-                # Add a preview expander to show resume text
-                with st.expander(f"Preview {resume['file_name']}"):
-                    st.write(resume['resume_text'])
+                with col1:
+                    # Display file name and preview button
+                    st.write(f"**Resume:** {resume['file_name']}")
+                    if st.button(f"Preview {resume['file_name']}"):
+                        st.text_area("Preview", resume['resume_text'], height=300)
 
-                # Add a download button for each resume
-                st.download_button(
-                    label=f"Download {resume['file_name']}",
-                    data=resume['resume_data'],
-                    file_name=resume['file_name']
-                )
+                with col2:
+                    # Add a download button
+                    st.download_button(
+                        label="Download",
+                        data=resume['resume_data'],
+                        file_name=resume['file_name']
+                    )
         else:
             st.write(f"No resumes match the selected experience level ({selected_experience}) and skills.")
     else:
