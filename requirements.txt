@@ -5,3 +5,5 @@ nltk
 pickle-mixin
 pdfplumber
 PyPDF2
+docx2txt
+pywin32
