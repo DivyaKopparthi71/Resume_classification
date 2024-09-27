@@ -173,4 +173,5 @@ if st.button('Classify') or st.session_state.get('classified', False):
                     )
         else:
             st.write(f"No resumes match the selected experience level ({selected_experience}), Year of Passing ({year_of_passing_input}), and Role ({selected_role}).")
-else
+else:
+    st.write("Please select skills to classify resumes.")
