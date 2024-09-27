@@ -30,7 +30,7 @@ skills = st.multiselect("Select your skills:", [
 ])
 
 # Experience level selection
-experience_options = [
+experience_options =[""]+ [
     "Fresher (0-1 years)", "2 years", ">2 years", "2-5 years", "5-10 years", "<10 years"
 ]
 selected_experience = st.selectbox("Select your experience level:", experience_options)
@@ -47,7 +47,7 @@ if year_of_passing_input:
         year_of_passing = [int(year_of_passing_input)]
 
 # Professional Role selection
-professional_roles = [
+professional_roles =[""]+[
     "PeopleSoft Admin", "Developer", "Software Engineer", "PeopleSoft Consultant",
     "Senior Software Engineer", "SQL Developer", "React Developer", "UI Developer",
     "Front End Developer", "Web Developer", "Not Specified", "Techno Functional Consultant",
