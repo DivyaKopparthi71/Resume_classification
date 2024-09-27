@@ -5,7 +5,7 @@ import PyPDF2
 import docx2txt
 
 # Streamlit UI
-st.title('Resume Classification and Skill Matching')
+st.title('Resume Classification')
 
 # Load the pre-trained SVC model and DataFrame (assuming these are required later in the code)
 svc_model = pickle.load(open("resume_classification_svc.pkl", 'rb'))
@@ -30,7 +30,7 @@ skills = st.multiselect("Select your skills:", [
 ])
 
 # Experience level selection
-experience_options =[""]+ [
+experience_options = [""] + [
     "Fresher (0-1 years)", "2 years", ">2 years", "2-5 years", "5-10 years", "<10 years"
 ]
 selected_experience = st.selectbox("Select your experience level:", experience_options)
@@ -47,7 +47,7 @@ if year_of_passing_input:
         year_of_passing = [int(year_of_passing_input)]
 
 # Professional Role selection
-professional_roles =[""]+[
+professional_roles = [""] + [
     "PeopleSoft Admin", "Developer", "Software Engineer", "PeopleSoft Consultant",
     "Senior Software Engineer", "SQL Developer", "React Developer", "UI Developer",
     "Front End Developer", "Web Developer", "Not Specified", "Techno Functional Consultant",
@@ -121,8 +121,10 @@ if uploaded_files and skills:
     # Store in session state to retain data
     st.session_state['resumes_data'] = resumes_data
 
-# Button to classify resumes
-if st.button('Classify'):
+# Filter resumes based solely on selected skills
+if st.button('Classify') or st.session_state.get('classified', False):
+    st.session_state['classified'] = True  # Mark as classified
+
     if st.session_state['resumes_data']:
         # Filter resumes based only on matched skills
         filtered_resumes = [
@@ -173,13 +175,13 @@ if st.button('Classify'):
 
                     # Show or hide the preview based on the state
                     if st.session_state['preview_states'][resume['file_name']]:
-                        st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=f"textarea_{resume['file_name']}", disabled=True)
+                        st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=f"textarea_{resume['file_name']}")
 
                 with col2:
                     # Add download button with a unique key
                     st.download_button("☁️", data=resume['resume_data'], file_name=resume['file_name'], key=f"download_{resume['file_name']}")
 
         else:
-            st.write("No resumes matched your criteria.")
+            st.write("No matching resumes found based on the selected criteria.")
     else:
         st.write("No resumes uploaded.")
