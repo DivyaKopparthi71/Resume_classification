@@ -132,10 +132,13 @@ if st.button('Classify') and skills:  # Ensure skills are selected
         # Display resumes that meet both skills and experience criteria
         filtered_resumes = []
         for resume in st.session_state['resumes_data']:
-            if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
-                # Check if year of passing matches the specified range
-                if any(str(year) in resume['resume_text'] for year in year_of_passing):
-                    filtered_resumes.append(resume)
+            try:
+                if any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience]):
+                    # Check if year of passing matches the specified range
+                    if any(str(year) in resume['resume_text'] for year in year_of_passing):
+                        filtered_resumes.append(resume)
+            except KeyError as e:
+                st.error(f"Error processing resume: {e}")
 
         if filtered_resumes:
             st.write(f"### Resumes matching {selected_experience}, Year of Passing: {year_of_passing_input}, Role: {selected_role}, and selected skills:")
