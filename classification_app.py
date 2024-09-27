@@ -7,7 +7,7 @@ import docx2txt
 # Streamlit UI
 st.title('Resume Classification and Skill Matching')
 
-# Load the pre-trained SVC model and DataFrame (assuming these are required later in the code)
+# Load the pre-trained SVC model and DataFrame
 svc_model = pickle.load(open("resume_classification_svc.pkl", 'rb'))
 df = pickle.load(open("dataset_svc.pkl", 'rb'))
 
@@ -117,9 +117,7 @@ if uploaded_files and skills:  # Ensure skills are selected
     st.session_state['resumes_data'] = resumes_data
 
 # Filter resumes based on experience level and match them with selected skills
-if st.button('Classify') or st.session_state.get('classified', False):
-    st.session_state['classified'] = True  # Mark as classified
-
+if st.button('Classify') and skills:  # Ensure skills are selected
     if st.session_state['resumes_data']:
 
         experience_filters = {
@@ -173,5 +171,8 @@ if st.button('Classify') or st.session_state.get('classified', False):
                     )
         else:
             st.write(f"No resumes match the selected experience level ({selected_experience}), Year of Passing ({year_of_passing_input}), and Role ({selected_role}).")
+    else:
+        st.write("No resumes uploaded or skills selected.")
 else:
     st.write("Please select skills to classify resumes.")
+
