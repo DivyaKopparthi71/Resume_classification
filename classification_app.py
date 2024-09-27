@@ -14,6 +14,16 @@ df = pickle.load(open("dataset_svc.pkl", 'rb'))
 # Input files (resumes)
 uploaded_files = st.file_uploader("Upload your resumes", type=['pdf', 'docx'], accept_multiple_files=True)
 
+# Initialize session state for selected options
+if 'selected_skills' not in st.session_state:
+    st.session_state['selected_skills'] = []
+if 'selected_experience' not in st.session_state:
+    st.session_state['selected_experience'] = ""
+if 'year_of_passing' not in st.session_state:
+    st.session_state['year_of_passing'] = ""
+if 'selected_role' not in st.session_state:
+    st.session_state['selected_role'] = ""
+
 # Skill selection (mandatory)
 skills = st.multiselect("Select your skills:", [
     "Benefits", "Integration", "PeopleSoft", "Update Management", "PeopleTools", "Reporting",
@@ -87,7 +97,13 @@ if 'preview_states' not in st.session_state:
     st.session_state['preview_states'] = {}  # Dictionary to track preview states for each resume
 
 # Process the uploaded files
-if uploaded_files and skills:  # Ensure skills are selected
+if uploaded_files:  # Check if any files are uploaded
+    # Clear previously selected options
+    st.session_state['selected_skills'] = skills
+    st.session_state['selected_experience'] = selected_experience
+    st.session_state['year_of_passing'] = year_of_passing
+    st.session_state['selected_role'] = selected_role
+    
     resumes_data = []
     for uploaded_file in uploaded_files:
         file_extension = uploaded_file.name.split('.')[-1].lower()
@@ -134,11 +150,11 @@ if st.button('Classify') and skills:  # Ensure skills are selected
         for resume in st.session_state['resumes_data']:
             try:
                 matches_experience = True  # By default, consider experience match
-                if selected_experience:  # Only check if an experience level is selected
-                    matches_experience = any(exp in resume['resume_text'].lower() for exp in experience_filters[selected_experience])
+                if st.session_state['selected_experience']:  # Only check if an experience level is selected
+                    matches_experience = any(exp in resume['resume_text'].lower() for exp in experience_filters[st.session_state['selected_experience']])
                 
                 # Check if year of passing matches the specified range if provided
-                matches_year = any(str(year) in resume['resume_text'] for year in year_of_passing) if year_of_passing else True
+                matches_year = any(str(year) in resume['resume_text'] for year in st.session_state['year_of_passing']) if st.session_state['year_of_passing'] else True
 
                 if matches_experience and matches_year:
                     filtered_resumes.append(resume)
@@ -147,7 +163,7 @@ if st.button('Classify') and skills:  # Ensure skills are selected
                 st.error(f"Error processing resume: {e}")
 
         if filtered_resumes:
-            st.write(f"### Resumes matching {selected_experience}, Year of Passing: {year_of_passing_input}, Role: {selected_role}, and selected skills:")
+            st.write(f"### Resumes matching {st.session_state['selected_experience']}, Year of Passing: {year_of_passing_input}, Role: {st.session_state['selected_role']}, and selected skills:")
 
             # Display resumes with a button to toggle preview text
             for resume in filtered_resumes:
@@ -162,24 +178,17 @@ if st.button('Classify') and skills:  # Ensure skills are selected
                         st.session_state['preview_states'][resume['file_name']] = False
 
                     # Button to toggle preview
-                    if st.button(f"{'Hide' if st.session_state['preview_states'][resume['file_name']] else 'Show'} {resume['file_name']}", key=f"preview_{resume['file_name']}"):
+                    if st.button(f"{'Show' if not st.session_state['preview_states'][resume['file_name']] else 'Hide'} Preview", key=resume['file_name']):
                         st.session_state['preview_states'][resume['file_name']] = not st.session_state['preview_states'][resume['file_name']]
-
-                    # Show or hide the preview based on the state
+                    
+                    # Show resume text if preview is toggled
                     if st.session_state['preview_states'][resume['file_name']]:
-                        st.text_area(label="Resume Preview", value=resume['resume_text'], height=300, key=f"textarea_{resume['file_name']}")
+                        st.write(resume['resume_text'])
+                        st.download_button("Download Resume", resume['resume_data'], file_name=resume['file_name'])
 
                 with col2:
-                    # Add download button with a distinct download icon
-                    st.download_button(
-                        label="☁️",  # Cloud icon for download
-                        data=resume['resume_data'],
-                        file_name=resume['file_name'],
-                        key=f"download_{resume['file_name']}",
-                        help="Click to download the resume"
-                    )
+                    # Download button for each resume
+                    st.download_button("Download", resume['resume_data'], file_name=resume['file_name'], mime="application/octet-stream")
 
         else:
-            st.write("No resumes matched your criteria.")
-else:
-    st.warning("Please select at least one skill to classify resumes.")
+            st.write("No matching resumes found.")
