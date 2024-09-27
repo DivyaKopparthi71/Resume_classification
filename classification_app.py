@@ -181,6 +181,6 @@ if st.button('Classify') and skills:  # Ensure skills are selected
         else:
             st.write("No resumes matched your criteria.")
     else:
-        st.write("Please upload at least one resume and select at least one skill.")
+        st.write("No resumes uploaded.")
 else:
-    st.warning("Please upload at least one resume and select at least one skill before classifying.")
+    st.warning("Please select at least one skill to proceed.")
