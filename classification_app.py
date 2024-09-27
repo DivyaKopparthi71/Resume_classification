@@ -108,6 +108,10 @@ if st.button('Classify') or st.session_state.get('classified', False):
                 st.write(f"**Resume:** {resume['file_name']}")
                 st.write(f"**Matched Skills:** {', '.join(resume['matched_skills'])}")
 
+                # Add a preview expander to show resume text
+                with st.expander(f"Preview {resume['file_name']}"):
+                    st.write(resume['resume_text'])
+
                 # Add a download button for each resume
                 st.download_button(
                     label=f"Download {resume['file_name']}",
