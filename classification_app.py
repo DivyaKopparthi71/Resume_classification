@@ -30,10 +30,10 @@ skills = st.multiselect("Select your skills:", [
 ])
 
 # Experience level selection (optional)
-experience_options = [
+experience_options = [""] + [
     "Fresher (0-1 years)", "2 years", ">2 years", "2-5 years", "5-10 years", "<10 years"
 ]
-selected_experience = st.selectbox("Select your experience level:", experience_options, index=0)
+selected_experience = st.selectbox("Select your experience level:", experience_options)
 
 # Year of Passing selection (optional, custom range)
 year_of_passing_input = st.text_input("Enter Year of Passing (e.g., 2019-2023 or 2010):")
@@ -47,7 +47,7 @@ if year_of_passing_input:
         year_of_passing = [int(year_of_passing_input)]
 
 # Professional Role selection (optional)
-professional_roles = [
+professional_roles = [""] + [
     "PeopleSoft Admin", "Developer", "Software Engineer", "PeopleSoft Consultant",
     "Senior Software Engineer", "SQL Developer", "React Developer", "UI Developer",
     "Front End Developer", "Web Developer", "Not Specified", "Techno Functional Consultant",
@@ -61,7 +61,7 @@ professional_roles = [
     "UI/UX Designer", "Software Tester", "Embedded Systems Engineer", 
     "Infrastructure Engineer", "Blockchain Developer", "AI Researcher"
 ]
-selected_role = st.selectbox("Select Professional Role:", professional_roles, index=0)
+selected_role = st.selectbox("Select Professional Role:", professional_roles)
 
 # Display selected role above results
 st.write(f"### Selected Professional Role: {selected_role}")
@@ -170,9 +170,6 @@ if st.button('Classify') and skills:  # Ensure skills are selected
                         help="Click to download the resume"  # Optional: add help text
                     )
         else:
-            st.write(f"No resumes match the selected experience level ({selected_experience}), Year of Passing ({year_of_passing_input}), and Role ({selected_role}).")
+            st.write(f"No resumes match the selected experience level ({selected_experience}), Year of Passing: {year_of_passing_input}, Role: {selected_role}, and selected skills.")
     else:
-        st.write("No resumes uploaded or skills selected.")
-else:
-    st.write("Please select skills to classify resumes.")
-
+        st.write("No resumes were processed. Please upload resumes and select skills.")
